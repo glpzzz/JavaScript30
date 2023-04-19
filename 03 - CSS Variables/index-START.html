@@ -1,25 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" x-data="css" :style="{
+    '--base': base,
+    '--spacing': spacing+'px',
+    '--blur': blur+'px',
+}">
+
 <head>
     <meta charset="UTF-8">
     <title>Scoped CSS Variables and JS</title>
     <script src="//unpkg.com/alpinejs" defer></script>
     <link rel="icon" href="https://fav.farm/🔥"/>
 </head>
-<body x-data="css">
+<body >
 <h2>Update CSS Variables with <span class='hl'>JS</span></h2>
 
 <div class="controls">
     <label for="spacing">Spacing:</label>
-    <input id="spacing" type="range" name="spacing" x-model="spacing" @change="update($event)" min="10" max="200"
+    <input id="spacing" type="range" name="spacing" x-model="spacing"  min="10" max="200"
            value="10" data-sizing="px">
 
     <label for="blur">Blur:</label>
-    <input id="blur" type="range" name="blur" x-model="blur" @change="update($event)" min="0" max="25" value="10"
+    <input id="blur" type="range" name="blur" x-model="blur" min="0" max="25" value="10"
            data-sizing="px">
 
     <label for="base">Base Color</label>
-    <input id="base" type="color" name="base" x-model="base" @change="update($event)" value="#ffc600">
+    <input id="base" type="color" name="base" x-model="base" value="#ffc600">
 </div>
 
 <p>
@@ -79,12 +84,6 @@
                 this.spacing = 10;
                 this.blur = 10;
                 this.base = '#ffc600';
-            },
-
-            update(e) {
-                const name = e.target.name;
-                const suffix = e.target.dataset.sizing || '';
-                document.documentElement.style.setProperty(`--${name}`, this[name]+suffix);
             },
 
         }));
