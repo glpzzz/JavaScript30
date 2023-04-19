@@ -1,115 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>JS + CSS Clock</title>
-        <script src="//unpkg.com/alpinejs" defer></script>
-        <link rel="icon" href="https://fav.farm/🔥" />
-    </head>
-    <body x-data="clock">
+<head>
+    <meta charset="UTF-8">
+    <title>JS + CSS Clock</title>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <link rel="icon" href="https://fav.farm/🔥"/>
+</head>
+<body x-data="clock">
 
-        <div class="clock">
-            <div class="clock-face">
-                <div class="hand hour-hand"></div>
-                <div class="hand min-hand"></div>
-                <div class="hand second-hand"></div>
-            </div>
-        </div>
+<div class="clock">
+    <div class="clock-face">
+        <div class="hand hour-hand"></div>
+        <div class="hand min-hand"></div>
+        <div class="hand second-hand"></div>
+    </div>
+</div>
 
-        <style>
-            html {
-                background: #018DED url(https://unsplash.it/1500/1000?image=881&blur=5);
-                background-size: cover;
-                font-family: 'helvetica neue';
-                text-align: center;
-                font-size: 10px;
+<style>
+    html {
+        background: #018DED url(https://unsplash.it/1500/1000?image=881&blur=5);
+        background-size: cover;
+        font-family: 'helvetica neue';
+        text-align: center;
+        font-size: 10px;
+    }
+
+    body {
+        margin: 0;
+        font-size: 2rem;
+        display: flex;
+        flex: 1;
+        min-height: 100vh;
+        align-items: center;
+    }
+
+    .clock {
+        width: 30rem;
+        height: 30rem;
+        border: 20px solid white;
+        border-radius: 50%;
+        margin: 50px auto;
+        position: relative;
+        padding: 2rem;
+        box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 3px #EFEFEF,
+        inset 0 0 10px black,
+        0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .clock-face {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform: translateY(-3px); /* account for the height of the clock hands */
+    }
+
+    .hand {
+        width: 50%;
+        height: 6px;
+        background: black;
+        position: absolute;
+        top: 50%;
+        transform-origin: 100%;
+        transform: rotate(90deg);
+    }
+
+    .min-hand {
+        width: 40%;
+        left: 10%;
+    }
+
+    .hour-hand {
+        width: 30%;
+        left: 20%;
+    }
+
+</style>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('clock', () => ({
+
+            secondHand: null,
+            minuteHand: null,
+            hourHand: null,
+
+            init() {
+                this.secondHand = document.querySelector('.second-hand');
+                this.minuteHand = document.querySelector('.min-hand');
+                this.hourHand = document.querySelector('.hour-hand');
+                setInterval(this.update.bind(this), 1000);
+            },
+
+            update() {
+                const now = new Date();
+
+                // seconds
+                const seconds = now.getSeconds();
+                const secondsDeg = 90 + seconds / 60 * 360;
+                this.secondHand.style.transform = `rotate(${secondsDeg}deg)`;
+
+                // minutes
+                const minutes = now.getMinutes();
+                let minutesDeg = 90 + minutes / 60 * 360;
+                const currentMinutePercent = seconds / 60;
+                minutesDeg = minutesDeg + 6 * currentMinutePercent
+                this.minuteHand.style.transform = `rotate(${minutesDeg}deg)`;
+
+                // hours
+                const hours = now.getHours() - 12;
+                let hoursDeg = 90 + hours / 12 * 360;
+                const currentHourPercent = minutes / 60;
+                hoursDeg = hoursDeg + 30 * currentHourPercent
+                this.hourHand.style.transform = `rotate(${hoursDeg}deg)`;
+
+                console.log(hoursDeg, minutesDeg, secondsDeg);
             }
-
-            body {
-                margin: 0;
-                font-size: 2rem;
-                display: flex;
-                flex: 1;
-                min-height: 100vh;
-                align-items: center;
-            }
-
-            .clock {
-                width: 30rem;
-                height: 30rem;
-                border: 20px solid white;
-                border-radius: 50%;
-                margin: 50px auto;
-                position: relative;
-                padding: 2rem;
-                box-shadow:
-                    0 0 0 4px rgba(0,0,0,0.1),
-                inset 0 0 0 3px #EFEFEF,
-                inset 0 0 10px black,
-                0 0 10px rgba(0,0,0,0.2);
-            }
-
-            .clock-face {
-                position: relative;
-                width: 100%;
-                height: 100%;
-                transform: translateY(-3px); /* account for the height of the clock hands */
-            }
-
-            .hand {
-                width: 50%;
-                height: 6px;
-                background: black;
-                position: absolute;
-                top: 50%;
-                transform-origin: 100%;
-                transform: rotate(90deg);
-            }
-
-            .min-hand{
-                width: 40%;
-                left: 10%;
-            }
-
-            .hour-hand{
-                width: 30%;
-                left: 20%;
-            }
-
-        </style>
-
-        <script>
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('clock', () => ({
-
-                    secondHand: null,
-                    minuteHand: null,
-                    hourHand: null,
-
-                    init() {
-                        this.secondHand = document.querySelector('.second-hand');
-                        this.minuteHand = document.querySelector('.min-hand');
-                        this.hourHand = document.querySelector('.hour-hand');
-                        setInterval(this.update.bind(this), 1000);
-                    },
-
-                    update() {
-                        const now = new Date();
-
-                        const seconds = now.getSeconds();
-                        const secondsDeg = 90 + seconds/60*360;
-                        this.secondHand.style.transform = `rotate(${secondsDeg}deg)`;
-
-                        const minutes = now.getMinutes();
-                        const minutesDeg = 90 + minutes/60*360;
-                        this.minuteHand.style.transform = `rotate(${minutesDeg}deg)`;
-
-                        const hours = now.getHours() - 12;
-                        const hoursDeg = 90 + hours/12*360;
-                        this.hourHand.style.transform = `rotate(${hoursDeg}deg)`;
-                    }
-                }))
-            })
-        </script>
-    </body>
+        }))
+    })
+</script>
+</body>
 </html>
+
+
