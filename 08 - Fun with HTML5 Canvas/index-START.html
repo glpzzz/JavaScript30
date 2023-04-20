@@ -1,19 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>HTML5 Canvas</title>
-  <link rel="icon" href="https://fav.farm/🔥" />
+    <meta charset="UTF-8">
+    <title>HTML5 Canvas</title>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <link rel="icon" href="https://fav.farm/🔥"/>
 </head>
-<body>
-<canvas id="draw" width="800" height="800"></canvas>
+<body x-data="paint" @resize.window="updateCanvasSize($event)" x-init="() => {
+    $nextTick(() => {
+        window.dispatchEvent(new Event('resize'));
+    });
+  }">
+<label>
+    Line Width: <span x-text="lineWidth"></span>
+    <input x-model="lineWidth"  type="range" min="1" max="20"/>
+</label>
+<label>
+    Rainbow Mode:
+    <input type="checkbox" x-model="rainbow" >
+</label>
+<label>
+    Hue: <span x-text="hue"></span>
+    <input type="range" x-model="hue" min="0" max="360" :disabled="rainbow"/>
+</label>
+
+<canvas id="draw" :width="width" :height="height" @mousedown="onMouseDown($event)" @mouseup="onMouseUp()"
+        @mousemove="onMouseMove($event)" @mouseout="onMouseOut()"></canvas>
 <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('paint', () => ({
+            canvas: document.getElementById('draw'),
+            width: 800,
+            height: 800,
+            ctx: null,
+            lastX: 0,
+            lastY: 0,
+            isDrawing: false,
+            hue: 0,
+            lineWidth: 10,
+            direction: true,
+            rainbow: false,
+            init() {
+                console.log('init');
+                this.ctx = this.canvas.getContext('2d');
+            },
+            updateCanvasSize(e) {
+                console.log(e);
+                [this.width, this.height] = [e.target.innerWidth, e.target.innerHeight];
+            },
+            onMouseDown(e) {
+                this.isDrawing = true;
+                this.updateLastCoordinates(e);
+            },
+            onMouseUp() {
+                this.isDrawing = false;
+            },
+            onMouseMove(e) {
+                if (!this.isDrawing) return;
+
+                this.ctx.strokeStyle = `hsl(${this.hue}, 100%, 50%)`;
+                this.ctx.lineWidth = this.lineWidth;
+
+                this.ctx.beginPath();
+                // start from
+                this.ctx.moveTo(this.lastX, this.lastY);
+                // go to
+                this.ctx.lineTo(e.offsetX, e.offsetY);
+                this.ctx.stroke();
+
+                this.updateLastCoordinates(e);
+
+                if(this.rainbow){
+                    this.hue++;
+                }
+
+                if(this.hue > 360){
+                    this.hue = 0;
+                }
+            },
+            onMouseOut() {
+                this.isDrawing = false;
+            },
+            toggleIsDrawing() {
+                this.isDrawing = !this.isDrawing;
+            },
+            updateLastCoordinates(e) {
+                [this.lastX, this.lastY] = [e.offsetX, e.offsetY];
+            }
+        }));
+    })
 </script>
 
 <style>
-  html, body {
-    margin: 0;
-  }
+    html, body {
+        margin: 0;
+    }
 </style>
 
 </body>
