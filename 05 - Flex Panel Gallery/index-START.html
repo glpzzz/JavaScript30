@@ -153,7 +153,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('panels', () => ({
             toggleOpen(e) {
-                const target = [...e.target.classList].indexOf('panel') > -1 ? e.target : e.target.parentNode;
+                const target = e.target.classList.contains('panel') ? e.target : e.target.parentNode;
                 target.classList.toggle('open');
             },
 
