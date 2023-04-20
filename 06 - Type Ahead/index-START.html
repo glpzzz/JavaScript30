@@ -1,22 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Type Ahead 👀</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="https://fav.farm/🔥" />
+    <meta charset="UTF-8">
+    <title>Type Ahead 👀</title>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://fav.farm/🔥"/>
 </head>
 <body>
 
-  <form class="search-form">
-    <input type="text" class="search" placeholder="City or State">
+<form class="search-form" x-data="cities">
+    <input type="text" class="search" placeholder="City or State" x-model="query" @input.debounce="filter()" :disabled="isLoading">
     <ul class="suggestions">
-      <li>Filter for a city</li>
-      <li>or a state</li>
+        <template x-if="query===''">
+            <li>Filter for a city</li>
+            <li>or a state</li>
+        </template>
+        <template x-for="(place, index) in filteredPlaces" :key="index">
+            <li>
+                <span class="name" x-html="highlightedName(place)"></span>
+                <span class="population" x-text="parseInt(place.population).toLocaleString()"></span>
+            </li>
+        </template>
     </ul>
-  </form>
+</form>
 <script>
-const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('cities', () => ({
+            places: [],
+            query: '',
+            filteredPlaces: [],
+            isLoading:true,
+            init() {
+                fetch(endpoint)
+                    .then(response => response.json())
+                    .then((data) => {
+                        this.places.push(...data);
+                        this.filter();
+                        this.isLoading = false;
+                    });
+            },
+            filter() {
+                this.filteredPlaces = this.query.length
+                    ? this.places.filter(place => {
+                        const regex = new RegExp(this.query, 'gi');
+                        return place.city.match(regex) || place.state.match(regex);
+                    })
+                    : [];
+
+                console.log(this.query, this.filteredPlaces);
+            },
+            highlightedName(place) {
+                const highlighted = `<span class="hl">${this.query}</span>`;
+                const regexp = new RegExp(this.query, 'gi');
+                return `${place.city}, ${place.state}`.replace(regexp, highlighted);
+            }
+        }));
+    });
 
 </script>
 </body>
