@@ -1,13 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Key Detection</title>
-  <script type="text/javascript" src="https://www.cornify.com/js/cornify.js"></script>
-  <link rel="icon" href="https://fav.farm/🔥" />
+    <meta charset="UTF-8">
+    <title>Key Detection</title>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <link rel="icon" href="https://fav.farm/🔥"/>
 </head>
-<body>
+<body x-data="konami" @keyup="onBodyKeyup($event.keyCode)">
+<p x-text="keystrokes.join(',')"></p>
 <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('konami', () => ({
+            keystrokes: [],
+            code: [38, 38, 40, 40, 37, 39, 37, 39, 66, 65],
+            onBodyKeyup(char) {
+                this.keystrokes.push(char);
+                this.keystrokes.splice(-this.code.length - 1, this.keystrokes.length - this.code.length);
+                console.log({
+                    strokes: this.keystrokes.join(),
+                    code: this.code.join(),
+                });
+                if (this.keystrokes.join(',') === this.code.join(',')) {
+                    alert('Konami');
+                }
+            }
+        }));
+    });
 </script>
 </body>
 </html>
